@@ -57,9 +57,9 @@ app.get('/api/stats', (req, res) => {
   const monday = getMondayOfWeek();
   const weekTrades = trades.filter(t => new Date(t.ts) >= monday);
 
-  const days = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+  const days = ['Mo', 'Di', 'Mi', 'Do', 'Fr'];
   const weekDays = [];
-  for (let i = 0; i < 7; i++) {
+  for (let i = 0; i < 5; i++) {
     const d = new Date(monday);
     d.setDate(monday.getDate() + i);
     const ds = d.toISOString().slice(0, 10);
