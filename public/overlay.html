@@ -6,7 +6,7 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
   *{margin:0;padding:0;box-sizing:border-box}
-  body{background:transparent;font-family:'Inter',sans-serif;color:#e0e0e0;overflow:hidden}
+  body{background:#000000;font-family:'Inter',sans-serif;color:#e0e0e0;overflow:hidden}
 
   .box{
     background:rgba(18,18,24,0.9);
@@ -70,7 +70,7 @@ function render(s){
     const lb=document.createElement('div');lb.className='dl';lb.textContent=d.label;
     const bar=document.createElement('div');bar.className='db';
     if(d.count>0){bar.classList.add(c(d.profit));bar.textContent=(d.profit>0?'+':'')+d.profit.toFixed(1)}
-    else bar.textContent='\u2013';
+    else bar.textContent='--';
     if(d.date===today)bar.classList.add('tm');
     col.appendChild(lb);col.appendChild(bar);wr.appendChild(col);
   });
