@@ -3,6 +3,7 @@ const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const PIN = process.env.ADMIN_PIN || 'max2024';
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -25,9 +26,23 @@ function getMondayOfWeek() {
   return mon;
 }
 
+// ===== PIN Auth Middleware =====
+function requirePin(req, res, next) {
+  const pin = req.headers['x-pin'] || req.query.pin;
+  if (pin !== PIN) return res.status(401).json({ error: 'wrong pin' });
+  next();
+}
+
 // ===== API =====
 
-// Stats (overlay polls this)
+// Verify PIN
+app.post('/api/verify-pin', (req, res) => {
+  const { pin } = req.body;
+  if (pin === PIN) return res.json({ ok: true });
+  res.status(401).json({ error: 'wrong pin' });
+});
+
+// Stats (overlay polls this - no PIN needed)
 app.get('/api/stats', (req, res) => {
   const today = todayStr();
   const todayTrades = trades.filter(t => t.ts.slice(0, 10) === today);
@@ -61,8 +76,8 @@ app.get('/api/stats', (req, res) => {
   });
 });
 
-// Add trade
-app.post('/api/trades', (req, res) => {
+// Add trade (PIN required)
+app.post('/api/trades', requirePin, (req, res) => {
   const { percent, note } = req.body;
   if (percent === undefined) return res.status(400).json({ error: 'percent required' });
   const trade = {
@@ -75,14 +90,14 @@ app.post('/api/trades', (req, res) => {
   res.json(trade);
 });
 
-// Delete trade
-app.delete('/api/trades/:id', (req, res) => {
+// Delete trade (PIN required)
+app.delete('/api/trades/:id', requirePin, (req, res) => {
   trades = trades.filter(t => String(t.id) !== req.params.id);
   res.json({ ok: true });
 });
 
-// Undo last today
-app.post('/api/undo', (req, res) => {
+// Undo last today (PIN required)
+app.post('/api/undo', requirePin, (req, res) => {
   const today = todayStr();
   for (let i = trades.length - 1; i >= 0; i--) {
     if (trades[i].ts.slice(0, 10) === today) {
@@ -93,12 +108,12 @@ app.post('/api/undo', (req, res) => {
   res.json({ ok: true });
 });
 
-// Reset today
-app.post('/api/reset-today', (req, res) => {
+// Reset today (PIN required)
+app.post('/api/reset-today', requirePin, (req, res) => {
   trades = trades.filter(t => t.ts.slice(0, 10) !== todayStr());
   res.json({ ok: true });
 });
 
 app.listen(PORT, () => {
-  console.log(`Trade Overlay läuft auf Port ${PORT}`);
+  console.log('Trade Overlay running on port ' + PORT);
 });
