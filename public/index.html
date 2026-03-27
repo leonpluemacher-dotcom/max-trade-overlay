@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trade Tracker</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#0e0e14;font-family:'Inter',sans-serif;color:#e0e0e0;min-height:100vh}
+  .page{max-width:440px;margin:0 auto;padding:28px 16px}
+
+  h1{font-size:18px;font-weight:700;margin-bottom:2px}
+  .sub{font-size:11px;color:#444;margin-bottom:22px}
+
+  .stats{display:flex;gap:8px;margin-bottom:16px}
+  .sbox{flex:1;text-align:center;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:10px 6px}
+  .slbl{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#555;margin-bottom:3px;font-weight:600}
+  .sval{font-size:18px;font-weight:700}
+
+  .card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:14px;margin-bottom:16px}
+  .lbl{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#555;margin-bottom:5px;font-weight:600}
+
+  .qrow{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px}
+  .qb{padding:6px 11px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.02);border-radius:5px;color:#888;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;transition:.15s}
+  .qb:hover{background:rgba(255,255,255,.07);color:#fff}
+  .qb:active{transform:scale(.95)}
+  .qb.g{color:#4ade80;border-color:rgba(74,222,128,.2)}
+  .qb.r{color:#f87171;border-color:rgba(248,113,113,.2)}
+
+  .irow{display:flex;gap:8px;margin-bottom:10px}
+  .ig{flex:1}
+  .ig label{display:block;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#555;margin-bottom:4px;font-weight:600}
+  input[type="number"],input[type="text"]{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:6px;padding:9px 10px;color:#fff;font-size:14px;font-family:'Inter',sans-serif;outline:none}
+  input:focus{border-color:rgba(74,222,128,.4)}
+
+  .brow{display:flex;gap:6px}
+  .btn{flex:1;padding:9px;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:.15s}
+  .btn:active{transform:scale(.97)}
+  .bw{background:rgba(74,222,128,.15);color:#4ade80}.bw:hover{background:rgba(74,222,128,.25)}
+  .bl{background:rgba(248,113,113,.15);color:#f87171}.bl:hover{background:rgba(248,113,113,.25)}
+  .bn{background:rgba(255,255,255,.06);color:#aaa}.bn:hover{background:rgba(255,255,255,.1)}
+
+  .thdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+  .thdr h2{font-size:11px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:1px}
+  .sm{background:none;border:1px solid rgba(255,255,255,.06);color:#777;font-size:10px;padding:3px 8px;border-radius:4px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;margin-left:5px}
+  .sm:hover{background:rgba(255,255,255,.04)}
+  .sm.dng{border-color:rgba(248,113,113,.2);color:#f87171}
+  .sm.dng:hover{background:rgba(248,113,113,.08)}
+
+  .tlist{display:flex;flex-direction:column;gap:3px;margin-bottom:20px}
+  .ti{display:flex;align-items:center;padding:7px 10px;background:rgba(255,255,255,.025);border-radius:5px;font-size:13px}
+  .tp{font-weight:700;min-width:62px}
+  .tn{flex:1;color:#555;font-size:11px;margin:0 10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .tt{color:#444;font-size:10px;min-width:42px;text-align:right}
+  .td{background:none;border:none;color:#444;cursor:pointer;font-size:14px;margin-left:6px;padding:2px 4px}
+  .td:hover{color:#f87171}
+  .empty{text-align:center;color:#333;font-size:12px;padding:14px}
+
+  .hint{padding:12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:8px;font-size:11px;color:#555;line-height:1.6}
+  .hint code{background:rgba(255,255,255,.06);padding:2px 6px;border-radius:3px;color:#4ade80;font-size:11px;user-select:all}
+  .hint strong{color:#888}
+
+  .pos{color:#4ade80}.neg{color:#f87171}.zero{color:#666}
+
+  @media(max-width:480px){
+    .page{padding:20px 12px}
+    .qb{padding:5px 8px;font-size:11px}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>Trade Tracker</h1>
+  <div class="sub">Trades eintragen \u2013 Overlay aktualisiert sich automatisch</div>
+
+  <div class="stats">
+    <div class="sbox"><div class="slbl">Trades</div><div class="sval" id="sc">0</div></div>
+    <div class="sbox"><div class="slbl">Heute</div><div class="sval zero" id="sp">0.00%</div></div>
+    <div class="sbox"><div class="slbl">Woche</div><div class="sval zero" id="sw">0.00%</div></div>
+  </div>
+
+  <div class="card">
+    <div class="lbl">Schnelleingabe</div>
+    <div class="qrow">
+      <button class="qb g" onclick="quick(0.25)">+0.25%</button>
+      <button class="qb g" onclick="quick(0.5)">+0.5%</button>
+      <button class="qb g" onclick="quick(1)">+1%</button>
+      <button class="qb g" onclick="quick(1.5)">+1.5%</button>
+      <button class="qb g" onclick="quick(2)">+2%</button>
+      <button class="qb r" onclick="quick(-0.25)">-0.25%</button>
+      <button class="qb r" onclick="quick(-0.5)">-0.5%</button>
+      <button class="qb r" onclick="quick(-1)">-1%</button>
+      <button class="qb r" onclick="quick(-1.5)">-1.5%</button>
+      <button class="qb r" onclick="quick(-2)">-2%</button>
+    </div>
+    <div class="irow">
+      <div class="ig"><label>Prozent (%)</label><input type="number" id="pIn" step="0.01" placeholder="z.B. 1.5"></div>
+      <div class="ig"><label>Notiz (optional)</label><input type="text" id="nIn" placeholder="z.B. EURUSD Long"></div>
+    </div>
+    <div class="brow">
+      <button class="btn bw" onclick="add('w')">+ Win</button>
+      <button class="btn bl" onclick="add('l')">+ Loss</button>
+      <button class="btn bn" onclick="add()">Eintragen</button>
+    </div>
+  </div>
+
+  <div class="thdr">
+    <h2>Heutige Trades</h2>
+    <div>
+      <button class="sm" onclick="undo()">\u21a9 R\u00fcck</button>
+      <button class="sm dng" onclick="reset()">L\u00f6schen</button>
+    </div>
+  </div>
+  <div class="tlist" id="tl"><div class="empty">Noch keine Trades heute.</div></div>
+
+  <div class="hint">
+    <strong>OBS Overlay-URL:</strong><br>
+    <code id="overlayUrl"></code><br><br>
+    In OBS \u2192 Quellen \u2192 <strong>Browser</strong> hinzuf\u00fcgen \u2192 diese URL einf\u00fcgen \u2192 Breite: <strong>300</strong>, H\u00f6he: <strong>190</strong>
+  </div>
+</div>
+
+<script>
+const fmt=v=>(v>0?'+':'')+v.toFixed(2)+'%';
+const cl=v=>v>0?'pos':v<0?'neg':'zero';
+
+document.getElementById('overlayUrl').textContent = location.origin + '/overlay.html';
+
+async function quick(p){
+  await fetch('/api/trades',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({percent:p})});
+  refresh();
+}
+
+async function add(type){
+  let p=parseFloat(document.getElementById('pIn').value);
+  if(isNaN(p)||p===0){document.getElementById('pIn').focus();return}
+  if(type==='w')p=Math.abs(p);if(type==='l')p=-Math.abs(p);
+  const n=document.getElementById('nIn').value.trim();
+  await fetch('/api/trades',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({percent:p,note:n})});
+  document.getElementById('pIn').value='';document.getElementById('nIn').value='';
+  document.getElementById('pIn').focus();refresh();
+}
+
+async function del(id){
+  await fetch('/api/trades/'+id,{method:'DELETE'});refresh();
+}
+
+async function undo(){
+  await fetch('/api/undo',{method:'POST'});refresh();
+}
+
+async function reset(){
+  if(!confirm('Alle heutigen Trades l\u00f6schen?'))return;
+  await fetch('/api/reset-today',{method:'POST'});refresh();
+}
+
+async function refresh(){
+  try{
+    const s=await(await fetch('/api/stats')).json();
+
+    document.getElementById('sc').textContent=s.today.count;
+    const sp=document.getElementById('sp');sp.textContent=fmt(s.today.profit);sp.className='sval '+cl(s.today.profit);
+    const sw=document.getElementById('sw');sw.textContent=fmt(s.week.profit);sw.className='sval '+cl(s.week.profit);
+
+    const tl=document.getElementById('tl');
+    if(!s.today.trades.length){tl.innerHTML='<div class="empty">Noch keine Trades heute.</div>';return}
+    tl.innerHTML='';
+    [...s.today.trades].reverse().forEach(t=>{
+      const time=new Date(t.ts).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+      const d=document.createElement('div');d.className='ti';
+      d.innerHTML=\`<span class="tp \${cl(t.pct)}">\${fmt(t.pct)}</span><span class="tn">\${t.note||''}</span><span class="tt">\${time}</span><button class="td" onclick="del('\${t.id}')">\u00d7</button>\`;
+      tl.appendChild(d);
+    });
+  }catch(e){}
+}
+
+document.getElementById('pIn').addEventListener('keydown',e=>{if(e.key==='Enter')add()});
+refresh();
+<\/script>
+</body>
+</html>
