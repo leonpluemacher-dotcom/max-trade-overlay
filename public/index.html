@@ -77,6 +77,26 @@
 
   .pos{color:#4ade80}.neg{color:#f87171}.zero{color:#666}
 
+  /* Design Settings */
+  .design{margin-top:16px}
+  .design-toggle{background:none;border:1px solid rgba(255,255,255,.06);color:#777;font-size:11px;padding:6px 12px;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;width:100%;text-align:left;display:flex;justify-content:space-between;align-items:center}
+  .design-toggle:hover{background:rgba(255,255,255,.03);color:#aaa}
+  .design-panel{display:none;margin-top:8px}
+  .design-panel.open{display:block}
+  .drow{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .drow label{font-size:10px;color:#555;text-transform:uppercase;letter-spacing:.5px;font-weight:600;min-width:100px}
+  .drow input[type="color"]{width:36px;height:28px;border:1px solid rgba(255,255,255,.1);border-radius:4px;background:transparent;cursor:pointer;padding:0}
+  .drow input[type="color"]::-webkit-color-swatch-wrapper{padding:2px}
+  .drow input[type="color"]::-webkit-color-swatch{border:none;border-radius:2px}
+  .drow .hex{font-size:10px;color:#444;font-family:monospace;min-width:62px}
+  .drow select{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:4px;padding:5px 8px;color:#ccc;font-size:11px;font-family:'Inter',sans-serif;outline:none}
+  .drow select option{background:#1a1a24;color:#ccc}
+  .dsave{margin-top:6px;padding:7px 16px;border:none;border-radius:5px;background:rgba(74,222,128,.15);color:#4ade80;font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+  .dsave:hover{background:rgba(74,222,128,.25)}
+  .dsaved{color:#4ade80;font-size:11px;margin-left:10px;opacity:0;transition:opacity .3s}
+  .preview-bar{margin-top:10px;margin-bottom:8px;padding:6px 10px;border-radius:6px;display:inline-flex;align-items:center;gap:8px;font-size:10px;font-family:'Inter',sans-serif}
+  .preview-dot{width:4px;height:4px;border-radius:50%}
+
   .hidden{display:none}
 
   @media(max-width:480px){
@@ -146,6 +166,66 @@
     <code id="overlayUrl"></code><br><br>
     In OBS > Quellen > <strong>Browser</strong> hinzufuegen > diese URL einfuegen > Breite: <strong>800</strong>, Hoehe: <strong>50</strong>
   </div>
+
+  <div class="design">
+    <button class="design-toggle" onclick="toggleDesign()">
+      <span>Overlay Design anpassen</span>
+      <span id="designArrow">&#9654;</span>
+    </button>
+    <div class="design-panel" id="designPanel">
+      <div class="card" style="margin-top:8px">
+        <div class="lbl">Farben</div>
+        <div class="drow">
+          <label>Hintergrund</label>
+          <input type="color" id="dBg" value="#000000" onchange="previewDesign()">
+          <span class="hex" id="dBgHex">#000000</span>
+        </div>
+        <div class="drow">
+          <label>Balken</label>
+          <input type="color" id="dBar" value="#121218" onchange="previewDesign()">
+          <span class="hex" id="dBarHex">#121218</span>
+        </div>
+        <div class="drow">
+          <label>Win-Farbe</label>
+          <input type="color" id="dWin" value="#4ade80" onchange="previewDesign()">
+          <span class="hex" id="dWinHex">#4ade80</span>
+        </div>
+        <div class="drow">
+          <label>Loss-Farbe</label>
+          <input type="color" id="dLoss" value="#f87171" onchange="previewDesign()">
+          <span class="hex" id="dLossHex">#f87171</span>
+        </div>
+        <div class="drow">
+          <label>Textfarbe</label>
+          <input type="color" id="dText" value="#e0e0e0" onchange="previewDesign()">
+          <span class="hex" id="dTextHex">#e0e0e0</span>
+        </div>
+
+        <div class="lbl" style="margin-top:12px">Groesse</div>
+        <div class="drow">
+          <label>Schriftgroesse</label>
+          <select id="dSize" onchange="previewDesign()">
+            <option value="small">Klein</option>
+            <option value="normal" selected>Normal</option>
+            <option value="large">Gross</option>
+          </select>
+        </div>
+
+        <div class="lbl" style="margin-top:12px">Vorschau</div>
+        <div class="preview-bar" id="designPreview" style="background:rgba(18,18,24,0.92)">
+          <div class="preview-dot" style="background:#4ade80"></div>
+          <span style="color:#777;font-size:8px">LIVE</span>
+          <span style="font-weight:700;font-size:14px;color:#4ade80">+1.25%</span>
+          <span style="color:#666;font-size:8px">3 Trades</span>
+        </div>
+
+        <div style="display:flex;align-items:center;margin-top:10px">
+          <button class="dsave" onclick="saveDesign()">Speichern</button>
+          <span class="dsaved" id="dsaved">Gespeichert!</span>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -163,6 +243,7 @@ async function login(){
       document.getElementById('mainApp').classList.remove('hidden');
       document.getElementById('overlayUrl').textContent=location.origin+'/overlay.html';
       refresh();
+      loadDesign();
     }else{
       document.getElementById('pinErr').style.display='block';
       pin='';
@@ -225,6 +306,62 @@ async function refresh(){
 }
 
 document.getElementById('pIn').addEventListener('keydown',e=>{if(e.key==='Enter')add()});
+
+// ===== Design Settings =====
+function toggleDesign(){
+  const p=document.getElementById('designPanel');
+  const a=document.getElementById('designArrow');
+  p.classList.toggle('open');
+  a.innerHTML=p.classList.contains('open')?'&#9660;':'&#9654;';
+}
+
+function previewDesign(){
+  const bg=document.getElementById('dBg').value;
+  const bar=document.getElementById('dBar').value;
+  const win=document.getElementById('dWin').value;
+  const loss=document.getElementById('dLoss').value;
+  const text=document.getElementById('dText').value;
+  document.getElementById('dBgHex').textContent=bg;
+  document.getElementById('dBarHex').textContent=bar;
+  document.getElementById('dWinHex').textContent=win;
+  document.getElementById('dLossHex').textContent=loss;
+  document.getElementById('dTextHex').textContent=text;
+  // Update preview
+  const pv=document.getElementById('designPreview');
+  pv.style.background=bar;
+  pv.querySelector('.preview-dot').style.background=win;
+  pv.querySelector('span[style*="font-weight:700"]').style.color=win;
+  pv.querySelector('span[style*="color:#666"]').style.color=text;
+}
+
+async function saveDesign(){
+  const body={
+    bgColor:document.getElementById('dBg').value,
+    barColor:document.getElementById('dBar').value,
+    winColor:document.getElementById('dWin').value,
+    lossColor:document.getElementById('dLoss').value,
+    textColor:document.getElementById('dText').value,
+    fontSize:document.getElementById('dSize').value
+  };
+  await fetch('/api/settings',{method:'POST',headers:hdrs(),body:JSON.stringify(body)});
+  const s=document.getElementById('dsaved');
+  s.style.opacity='1';
+  setTimeout(()=>s.style.opacity='0',2000);
+}
+
+async function loadDesign(){
+  try{
+    const s=await(await fetch('/api/settings')).json();
+    document.getElementById('dBg').value=s.bgColor||'#000000';
+    document.getElementById('dBar').value=s.barColor.startsWith('rgba')?'#121218':s.barColor;
+    document.getElementById('dWin').value=s.winColor||'#4ade80';
+    document.getElementById('dLoss').value=s.lossColor||'#f87171';
+    document.getElementById('dText').value=s.textColor||'#e0e0e0';
+    document.getElementById('dSize').value=s.fontSize||'normal';
+    previewDesign();
+  }catch(e){}
+}
 </script>
 </body>
 </html>
+
