@@ -17,14 +17,22 @@
     width:max-content;
     backdrop-filter:blur(8px);
   }
+
+  /* Dividers between sections */
   .sep{width:1px;height:28px;background:rgba(255,255,255,.08);margin:0 14px;flex-shrink:0}
+
+  /* Live indicator */
   .live{display:flex;align-items:center;gap:6px;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:#777;font-weight:600;white-space:nowrap}
   .dot{width:5px;height:5px;border-radius:50%;background:#4ade80;animation:p 2s infinite;flex-shrink:0}
   @keyframes p{0%,100%{opacity:1}50%{opacity:.3}}
+
+  /* Today section */
   .td-section{display:flex;align-items:center;gap:10px}
   .profit{font-size:22px;font-weight:700;letter-spacing:-.5px;white-space:nowrap}
   .meta{font-size:9px;color:#666;line-height:1.5;white-space:nowrap}
   .meta b{color:#aaa;font-weight:600}
+
+  /* Week bars */
   .week{display:flex;align-items:center;gap:0}
   .wlbl{font-size:8px;text-transform:uppercase;letter-spacing:1px;color:#555;font-weight:600;margin-right:8px;white-space:nowrap}
   .wr{display:flex;gap:3px}
@@ -34,40 +42,56 @@
   .db.pos{background:rgba(74,222,128,.13);color:#4ade80}
   .db.neg{background:rgba(248,113,113,.13);color:#f87171}
   .db.tm{border:1px solid rgba(255,255,255,.15)}
+
+  /* Week total */
   .wtotal{display:flex;align-items:center;gap:6px;white-space:nowrap}
   .wtlbl{font-size:8px;color:#555;text-transform:uppercase;letter-spacing:1px;font-weight:600}
   .wv{font-weight:700;font-size:13px}
+
   .pos{color:#4ade80}.neg{color:#f87171}.zero{color:#666}
 </style>
 </head>
 <body>
 <div class="bar">
+  <!-- Live indicator -->
   <div class="live"><div class="dot"></div>Live</div>
+
   <div class="sep"></div>
+
+  <!-- Today -->
   <div class="td-section">
     <div class="profit zero" id="tp">0.00%</div>
     <div class="meta"><b id="tc">0</b> Trades<br>Heute</div>
   </div>
+
   <div class="sep"></div>
+
+  <!-- Week bars -->
   <div class="week">
     <div class="wlbl">Woche</div>
     <div class="wr" id="wr"></div>
   </div>
+
   <div class="sep"></div>
+
+  <!-- Week total -->
   <div class="wtotal">
     <div class="wtlbl">Gesamt</div>
     <div class="wv zero" id="wp">0.00%</div>
   </div>
 </div>
+
 <script>
 const today=new Date().toISOString().slice(0,10);
 const fmt=v=>(v>0?'+':'')+v.toFixed(2)+'%';
 const c=v=>v>0?'pos':v<0?'neg':'zero';
+
 function render(s){
   const tp=document.getElementById('tp');
   tp.textContent=fmt(s.today.profit);
   tp.className='profit '+c(s.today.profit);
   document.getElementById('tc').textContent=s.today.count;
+
   const wr=document.getElementById('wr');
   wr.innerHTML='';
   s.week.days.forEach(d=>{
@@ -79,10 +103,12 @@ function render(s){
     if(d.date===today)bar.classList.add('tm');
     col.appendChild(lb);col.appendChild(bar);wr.appendChild(col);
   });
+
   const wp=document.getElementById('wp');
   wp.textContent=fmt(s.week.profit);
   wp.className='wv '+c(s.week.profit);
 }
+
 async function poll(){
   try{const r=await fetch('/api/stats');render(await r.json())}catch(e){}
 }
