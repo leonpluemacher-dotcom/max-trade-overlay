@@ -10,6 +10,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // ===== In-Memory Store =====
 let trades = [];
+let settings = {
+  bgColor: '#000000',
+  barColor: 'rgba(18,18,24,0.92)',
+  winColor: '#4ade80',
+  lossColor: '#f87171',
+  textColor: '#e0e0e0',
+  fontSize: 'normal'  // 'small', 'normal', 'large'
+};
 
 // ===== Helpers =====
 function todayStr() {
@@ -76,6 +84,20 @@ app.get('/api/stats', (req, res) => {
   });
 });
 
+// Get settings (no PIN - overlay needs this)
+app.get('/api/settings', (req, res) => {
+  res.json(settings);
+});
+
+// Update settings (PIN required)
+app.post('/api/settings', requirePin, (req, res) => {
+  const allowed = ['bgColor', 'barColor', 'winColor', 'lossColor', 'textColor', 'fontSize'];
+  for (const key of allowed) {
+    if (req.body[key] !== undefined) settings[key] = req.body[key];
+  }
+  res.json(settings);
+});
+
 // Add trade (PIN required)
 app.post('/api/trades', requirePin, (req, res) => {
   const { percent, note } = req.body;
@@ -115,5 +137,5 @@ app.post('/api/reset-today', requirePin, (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log('Trade Overlay running on port ' + PORT);
+  console.log(`Trade Overlay running on port ${PORT}`);
 });
