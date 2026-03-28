@@ -117,6 +117,44 @@ app.get('/api/stats', (req, res) => {
     });
   }
 
+  // Monthly stats (for admin panel only)
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
+  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().slice(0, 10);
+  const monthTrades = trades.filter(t => t.ts.slice(0, 10) >= monthStart && t.ts.slice(0, 10) <= monthEnd);
+
+  // Group by week within the month
+  const monthWeeks = [];
+  const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+  let wStart = new Date(firstDay);
+  const fdow = wStart.getDay();
+  const foff = fdow === 0 ? -6 : 1 - fdow;
+  wStart.setDate(wStart.getDate() + foff);
+
+  while (wStart <= new Date(now.getFullYear(), now.getMonth() + 1, 0)) {
+    const wEnd = new Date(wStart);
+    wEnd.setDate(wStart.getDate() + 4);
+    const ws = wStart.toISOString().slice(0, 10);
+    const we = wEnd.toISOString().slice(0, 10);
+    const wt = trades.filter(t => t.ts.slice(0, 10) >= ws && t.ts.slice(0, 10) <= we
+      && t.ts.slice(0, 10) >= monthStart && t.ts.slice(0, 10) <= monthEnd);
+
+    if (wt.length > 0 || (wStart >= firstDay && wStart <= new Date(now.getFullYear(), now.getMonth() + 1, 0))) {
+      const weekLabel = `${wStart.getDate().toString().padStart(2,'0')}.${(wStart.getMonth()+1).toString().padStart(2,'0')}.–${wEnd.getDate().toString().padStart(2,'0')}.${(wEnd.getMonth()+1).toString().padStart(2,'0')}.`;
+      monthWeeks.push({
+        label: weekLabel,
+        startDate: ws,
+        endDate: we,
+        count: wt.length,
+        profit: +(wt.reduce((s, t) => s + t.pct, 0).toFixed(4))
+      });
+    }
+
+    wStart.setDate(wStart.getDate() + 7);
+  }
+
+  const monthNames = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+
   res.json({
     today: {
       count: todayTrades.length,
@@ -127,6 +165,13 @@ app.get('/api/stats', (req, res) => {
       count: weekTrades.length,
       profit: +(weekTrades.reduce((s, t) => s + t.pct, 0).toFixed(4)),
       days: weekDays
+    },
+    month: {
+      name: monthNames[now.getMonth()],
+      year: now.getFullYear(),
+      count: monthTrades.length,
+      profit: +(monthTrades.reduce((s, t) => s + t.pct, 0).toFixed(4)),
+      weeks: monthWeeks
     }
   });
 });
