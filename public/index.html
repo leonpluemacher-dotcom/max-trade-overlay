@@ -43,7 +43,7 @@
   .irow{display:flex;gap:8px;margin-bottom:10px}
   .ig{flex:1}
   .ig label{display:block;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#555;margin-bottom:4px;font-weight:600}
-  input[type="number"],input[type="text"]{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:6px;padding:9px 10px;color:#fff;font-size:14px;font-family:'Inter',sans-serif;outline:none}
+  input[type=\"number\"],input[type=\"text\"]{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:6px;padding:9px 10px;color:#fff;font-size:14px;font-family:'Inter',sans-serif;outline:none}
   input:focus{border-color:rgba(74,222,128,.4)}
 
   .brow{display:flex;gap:6px}
@@ -77,6 +77,23 @@
 
   .pos{color:#4ade80}.neg{color:#f87171}.zero{color:#666}
 
+  /* Month View */
+  .month-section{margin-bottom:16px}
+  .month-toggle{background:none;border:1px solid rgba(255,255,255,.06);color:#777;font-size:11px;padding:6px 12px;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;width:100%;text-align:left;display:flex;justify-content:space-between;align-items:center}
+  .month-toggle:hover{background:rgba(255,255,255,.03);color:#aaa}
+  .month-panel{display:none;margin-top:8px}
+  .month-panel.open{display:block}
+  .month-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding:0 2px}
+  .month-title{font-size:13px;font-weight:700;color:#ccc}
+  .month-total{font-size:15px;font-weight:700}
+  .month-meta{font-size:10px;color:#555}
+  .mw{display:flex;align-items:center;padding:8px 10px;background:rgba(255,255,255,.025);border-radius:5px;font-size:12px;margin-bottom:3px}
+  .mw-label{min-width:120px;color:#666;font-size:11px}
+  .mw-count{min-width:60px;color:#555;font-size:10px;text-align:center}
+  .mw-profit{font-weight:700;min-width:70px;text-align:right}
+  .mw-bar{flex:1;height:4px;background:rgba(255,255,255,.04);border-radius:2px;margin:0 10px;overflow:hidden}
+  .mw-bar-inner{height:100%;border-radius:2px;transition:width .3s}
+
   /* Design Settings */
   .design{margin-top:16px}
   .design-toggle{background:none;border:1px solid rgba(255,255,255,.06);color:#777;font-size:11px;padding:6px 12px;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;width:100%;text-align:left;display:flex;justify-content:space-between;align-items:center}
@@ -85,9 +102,9 @@
   .design-panel.open{display:block}
   .drow{display:flex;align-items:center;gap:10px;margin-bottom:10px}
   .drow label{font-size:10px;color:#555;text-transform:uppercase;letter-spacing:.5px;font-weight:600;min-width:100px}
-  .drow input[type="color"]{width:36px;height:28px;border:1px solid rgba(255,255,255,.1);border-radius:4px;background:transparent;cursor:pointer;padding:0}
-  .drow input[type="color"]::-webkit-color-swatch-wrapper{padding:2px}
-  .drow input[type="color"]::-webkit-color-swatch{border:none;border-radius:2px}
+  .drow input[type=\"color\"]{width:36px;height:28px;border:1px solid rgba(255,255,255,.1);border-radius:4px;background:transparent;cursor:pointer;padding:0}
+  .drow input[type=\"color\"]::-webkit-color-swatch-wrapper{padding:2px}
+  .drow input[type=\"color\"]::-webkit-color-swatch{border:none;border-radius:2px}
   .drow .hex{font-size:10px;color:#444;font-family:monospace;min-width:62px}
   .drow select{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:4px;padding:5px 8px;color:#ccc;font-size:11px;font-family:'Inter',sans-serif;outline:none}
   .drow select option{background:#1a1a24;color:#ccc}
@@ -108,120 +125,139 @@
 <body>
 
 <!-- Login Screen -->
-<div class="login" id="loginScreen">
+<div class=\"login\" id=\"loginScreen\">
   <h1>Trade Tracker</h1>
-  <div class="sub">PIN eingeben um Trades zu verwalten</div>
-  <input type="password" id="pinInput" placeholder="PIN" maxlength="20" autocomplete="off">
-  <button onclick="login()">Einloggen</button>
-  <div class="err" id="pinErr">Falscher PIN</div>
+  <div class=\"sub\">PIN eingeben um Trades zu verwalten</div>
+  <input type=\"password\" id=\"pinInput\" placeholder=\"PIN\" maxlength=\"20\" autocomplete=\"off\">
+  <button onclick=\"login()\">Einloggen</button>
+  <div class=\"err\" id=\"pinErr\">Falscher PIN</div>
 </div>
 
 <!-- Main App (hidden until login) -->
-<div class="page hidden" id="mainApp">
+<div class=\"page hidden\" id=\"mainApp\">
   <h1>Trade Tracker</h1>
-  <div class="sub">Trades eintragen - Overlay aktualisiert sich automatisch</div>
+  <div class=\"sub\">Trades eintragen - Overlay aktualisiert sich automatisch</div>
 
-  <div class="stats">
-    <div class="sbox"><div class="slbl">Trades</div><div class="sval" id="sc">0</div></div>
-    <div class="sbox"><div class="slbl">Heute</div><div class="sval zero" id="sp">0.00%</div></div>
-    <div class="sbox"><div class="slbl">Woche</div><div class="sval zero" id="sw">0.00%</div></div>
+  <div class=\"stats\">
+    <div class=\"sbox\"><div class=\"slbl\">Trades</div><div class=\"sval\" id=\"sc\">0</div></div>
+    <div class=\"sbox\"><div class=\"slbl\">Heute</div><div class=\"sval zero\" id=\"sp\">0.00%</div></div>
+    <div class=\"sbox\"><div class=\"slbl\">Woche</div><div class=\"sval zero\" id=\"sw\">0.00%</div></div>
   </div>
 
-  <div class="card">
-    <div class="lbl">Schnelleingabe</div>
-    <div class="qrow">
-      <button class="qb g" onclick="quick(0.25)">+0.25%</button>
-      <button class="qb g" onclick="quick(0.5)">+0.5%</button>
-      <button class="qb g" onclick="quick(1)">+1%</button>
-      <button class="qb g" onclick="quick(1.5)">+1.5%</button>
-      <button class="qb g" onclick="quick(2)">+2%</button>
-      <button class="qb r" onclick="quick(-0.25)">-0.25%</button>
-      <button class="qb r" onclick="quick(-0.5)">-0.5%</button>
-      <button class="qb r" onclick="quick(-1)">-1%</button>
-      <button class="qb r" onclick="quick(-1.5)">-1.5%</button>
-      <button class="qb r" onclick="quick(-2)">-2%</button>
-    </div>
-    <div class="irow">
-      <div class="ig"><label>Prozent (%)</label><input type="number" id="pIn" step="0.01" placeholder="z.B. 1.5"></div>
-      <div class="ig"><label>Notiz (optional)</label><input type="text" id="nIn" placeholder="z.B. EURUSD Long"></div>
-    </div>
-    <div class="brow">
-      <button class="btn bw" onclick="add('w')">+ Win</button>
-      <button class="btn bl" onclick="add('l')">+ Loss</button>
-      <button class="btn bn" onclick="add()">Eintragen</button>
+  <div class=\"month-section\">
+    <button class=\"month-toggle\" onclick=\"toggleMonth()\">
+      <span>Monatsansicht</span>
+      <span id=\"monthArrow\">&#9654;</span>
+    </button>
+    <div class=\"month-panel\" id=\"monthPanel\">
+      <div class=\"card\" style=\"margin-top:8px\">
+        <div class=\"month-header\">
+          <div>
+            <div class=\"month-title\" id=\"monthName\">---</div>
+            <div class=\"month-meta\" id=\"monthMeta\">0 Trades</div>
+          </div>
+          <div class=\"month-total\" id=\"monthTotal\">0.00%</div>
+        </div>
+        <div id=\"monthWeeks\"></div>
+      </div>
     </div>
   </div>
 
-  <div class="thdr">
+  <div class=\"card\">
+    <div class=\"lbl\">Schnelleingabe</div>
+    <div class=\"qrow\">
+      <button class=\"qb g\" onclick=\"quick(0.25)\">+0.25%</button>
+      <button class=\"qb g\" onclick=\"quick(0.5)\">+0.5%</button>
+      <button class=\"qb g\" onclick=\"quick(1)\">+1%</button>
+      <button class=\"qb g\" onclick=\"quick(1.5)\">+1.5%</button>
+      <button class=\"qb g\" onclick=\"quick(2)\">+2%</button>
+      <button class=\"qb r\" onclick=\"quick(-0.25)\">-0.25%</button>
+      <button class=\"qb r\" onclick=\"quick(-0.5)\">-0.5%</button>
+      <button class=\"qb r\" onclick=\"quick(-1)\">-1%</button>
+      <button class=\"qb r\" onclick=\"quick(-1.5)\">-1.5%</button>
+      <button class=\"qb r\" onclick=\"quick(-2)\">-2%</button>
+    </div>
+    <div class=\"irow\">
+      <div class=\"ig\"><label>Prozent (%)</label><input type=\"number\" id=\"pIn\" step=\"0.01\" placeholder=\"z.B. 1.5\"></div>
+      <div class=\"ig\"><label>Notiz (optional)</label><input type=\"text\" id=\"nIn\" placeholder=\"z.B. EURUSD Long\"></div>
+    </div>
+    <div class=\"brow\">
+      <button class=\"btn bw\" onclick=\"add('w')\">+ Win</button>
+      <button class=\"btn bl\" onclick=\"add('l')\">+ Loss</button>
+      <button class=\"btn bn\" onclick=\"add()\">Eintragen</button>
+    </div>
+  </div>
+
+  <div class=\"thdr\">
     <h2>Heutige Trades</h2>
     <div>
-      <button class="sm" onclick="undo()">Undo</button>
-      <button class="sm dng" onclick="reset()">Reset</button>
+      <button class=\"sm\" onclick=\"undo()\">Undo</button>
+      <button class=\"sm dng\" onclick=\"reset()\">Reset</button>
     </div>
   </div>
-  <div class="tlist" id="tl"><div class="empty">Noch keine Trades heute.</div></div>
+  <div class=\"tlist\" id=\"tl\"><div class=\"empty\">Noch keine Trades heute.</div></div>
 
-  <div class="hint">
+  <div class=\"hint\">
     <strong>OBS Overlay-URL:</strong><br>
-    <code id="overlayUrl"></code><br><br>
+    <code id=\"overlayUrl\"></code><br><br>
     In OBS > Quellen > <strong>Browser</strong> hinzufuegen > diese URL einfuegen > Breite: <strong>550</strong>, Hoehe: <strong>50</strong>
   </div>
 
-  <div class="design">
-    <button class="design-toggle" onclick="toggleDesign()">
+  <div class=\"design\">
+    <button class=\"design-toggle\" onclick=\"toggleDesign()\">
       <span>Overlay Design anpassen</span>
-      <span id="designArrow">&#9654;</span>
+      <span id=\"designArrow\">&#9654;</span>
     </button>
-    <div class="design-panel" id="designPanel">
-      <div class="card" style="margin-top:8px">
-        <div class="lbl">Farben</div>
-        <div class="drow">
+    <div class=\"design-panel\" id=\"designPanel\">
+      <div class=\"card\" style=\"margin-top:8px\">
+        <div class=\"lbl\">Farben</div>
+        <div class=\"drow\">
           <label>Hintergrund</label>
-          <input type="color" id="dBg" value="#000000" onchange="previewDesign()">
-          <span class="hex" id="dBgHex">#000000</span>
+          <input type=\"color\" id=\"dBg\" value=\"#000000\" onchange=\"previewDesign()\">
+          <span class=\"hex\" id=\"dBgHex\">#000000</span>
         </div>
-        <div class="drow">
+        <div class=\"drow\">
           <label>Balken</label>
-          <input type="color" id="dBar" value="#121218" onchange="previewDesign()">
-          <span class="hex" id="dBarHex">#121218</span>
+          <input type=\"color\" id=\"dBar\" value=\"#121218\" onchange=\"previewDesign()\">
+          <span class=\"hex\" id=\"dBarHex\">#121218</span>
         </div>
-        <div class="drow">
+        <div class=\"drow\">
           <label>Win-Farbe</label>
-          <input type="color" id="dWin" value="#4ade80" onchange="previewDesign()">
-          <span class="hex" id="dWinHex">#4ade80</span>
+          <input type=\"color\" id=\"dWin\" value=\"#4ade80\" onchange=\"previewDesign()\">
+          <span class=\"hex\" id=\"dWinHex\">#4ade80</span>
         </div>
-        <div class="drow">
+        <div class=\"drow\">
           <label>Loss-Farbe</label>
-          <input type="color" id="dLoss" value="#f87171" onchange="previewDesign()">
-          <span class="hex" id="dLossHex">#f87171</span>
+          <input type=\"color\" id=\"dLoss\" value=\"#f87171\" onchange=\"previewDesign()\">
+          <span class=\"hex\" id=\"dLossHex\">#f87171</span>
         </div>
-        <div class="drow">
+        <div class=\"drow\">
           <label>Textfarbe</label>
-          <input type="color" id="dText" value="#e0e0e0" onchange="previewDesign()">
-          <span class="hex" id="dTextHex">#e0e0e0</span>
+          <input type=\"color\" id=\"dText\" value=\"#e0e0e0\" onchange=\"previewDesign()\">
+          <span class=\"hex\" id=\"dTextHex\">#e0e0e0</span>
         </div>
 
-        <div class="lbl" style="margin-top:12px">Groesse</div>
-        <div class="drow">
+        <div class=\"lbl\" style=\"margin-top:12px\">Groesse</div>
+        <div class=\"drow\">
           <label>Schriftgroesse</label>
-          <select id="dSize" onchange="previewDesign()">
-            <option value="small">Klein</option>
-            <option value="normal" selected>Normal</option>
-            <option value="large">Gross</option>
+          <select id=\"dSize\" onchange=\"previewDesign()\">
+            <option value=\"small\">Klein</option>
+            <option value=\"normal\" selected>Normal</option>
+            <option value=\"large\">Gross</option>
           </select>
         </div>
 
-        <div class="lbl" style="margin-top:12px">Vorschau</div>
-        <div class="preview-bar" id="designPreview" style="background:rgba(18,18,24,0.92)">
-          <div class="preview-dot" style="background:#4ade80"></div>
-          <span style="color:#777;font-size:8px">LIVE</span>
-          <span style="font-weight:700;font-size:14px;color:#4ade80">+1.25%</span>
-          <span style="color:#666;font-size:8px">3 Trades</span>
+        <div class=\"lbl\" style=\"margin-top:12px\">Vorschau</div>
+        <div class=\"preview-bar\" id=\"designPreview\" style=\"background:rgba(18,18,24,0.92)\">
+          <div class=\"preview-dot\" style=\"background:#4ade80\"></div>
+          <span style=\"color:#777;font-size:8px\">LIVE</span>
+          <span style=\"font-weight:700;font-size:14px;color:#4ade80\">+1.25%</span>
+          <span style=\"color:#666;font-size:8px\">3 Trades</span>
         </div>
 
-        <div style="display:flex;align-items:center;margin-top:10px">
-          <button class="dsave" onclick="saveDesign()">Speichern</button>
-          <span class="dsaved" id="dsaved">Gespeichert!</span>
+        <div style=\"display:flex;align-items:center;margin-top:10px\">
+          <button class=\"dsave\" onclick=\"saveDesign()\">Speichern</button>
+          <span class=\"dsaved\" id=\"dsaved\">Gespeichert!</span>
         </div>
       </div>
     </div>
@@ -293,19 +329,59 @@ async function refresh(){
     document.getElementById('sc').textContent=s.today.count;
     const sp=document.getElementById('sp');sp.textContent=fmt(s.today.profit);sp.className='sval '+cl(s.today.profit);
     const sw=document.getElementById('sw');sw.textContent=fmt(s.week.profit);sw.className='sval '+cl(s.week.profit);
+    if(s.month)renderMonth(s.month);
     const tl=document.getElementById('tl');
-    if(!s.today.trades.length){tl.innerHTML='<div class="empty">Noch keine Trades heute.</div>';return}
+    if(!s.today.trades.length){tl.innerHTML='<div class=\"empty\">Noch keine Trades heute.</div>';return}
     tl.innerHTML='';
     [...s.today.trades].reverse().forEach(t=>{
       const time=new Date(t.ts).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
       const d=document.createElement('div');d.className='ti';
-      d.innerHTML='<span class="tp '+cl(t.pct)+'">'+fmt(t.pct)+'</span><span class="tn">'+(t.note||'')+'</span><span class="tt">'+time+'</span><button class="td" onclick="del(\''+t.id+'\')">x</button>';
+      d.innerHTML='<span class=\"tp '+cl(t.pct)+'\">'+fmt(t.pct)+'</span><span class=\"tn\">'+(t.note||'')+'</span><span class=\"tt\">'+time+'</span><button class=\"td\" onclick=\"del(\\\''+t.id+'\\\')\">x</button>';
       tl.appendChild(d);
     });
   }catch(e){}
 }
 
 document.getElementById('pIn').addEventListener('keydown',e=>{if(e.key==='Enter')add()});
+
+// ===== Month View =====
+function toggleMonth(){
+  const p=document.getElementById('monthPanel');
+  const a=document.getElementById('monthArrow');
+  p.classList.toggle('open');
+  a.innerHTML=p.classList.contains('open')?'&#9660;':'&#9654;';
+}
+
+function renderMonth(month){
+  if(!month)return;
+  document.getElementById('monthName').textContent=month.name+' '+month.year;
+  document.getElementById('monthMeta').textContent=month.count+' Trades';
+  const mt=document.getElementById('monthTotal');
+  mt.textContent=fmt(month.profit);
+  mt.className='month-total '+cl(month.profit);
+
+  const container=document.getElementById('monthWeeks');
+  if(!month.weeks||!month.weeks.length){
+    container.innerHTML='<div class=\"empty\">Noch keine Daten diesen Monat.</div>';
+    return;
+  }
+
+  const maxAbs=Math.max(...month.weeks.map(w=>Math.abs(w.profit)),0.01);
+
+  container.innerHTML='';
+  month.weeks.forEach(w=>{
+    const barPct=Math.min(Math.abs(w.profit)/maxAbs*100,100);
+    const barColor=w.profit>0?'#4ade80':w.profit<0?'#f87171':'#333';
+    const d=document.createElement('div');
+    d.className='mw';
+    d.innerHTML=
+      '<span class=\"mw-label\">'+w.label+'</span>'+
+      '<span class=\"mw-count\">'+w.count+' Trades</span>'+
+      '<div class=\"mw-bar\"><div class=\"mw-bar-inner\" style=\"width:'+barPct+'%;background:'+barColor+'\"></div></div>'+
+      '<span class=\"mw-profit '+cl(w.profit)+'\">'+fmt(w.profit)+'</span>';
+    container.appendChild(d);
+  });
+}
 
 // ===== Design Settings =====
 function toggleDesign(){
@@ -326,12 +402,11 @@ function previewDesign(){
   document.getElementById('dWinHex').textContent=win;
   document.getElementById('dLossHex').textContent=loss;
   document.getElementById('dTextHex').textContent=text;
-  // Update preview
   const pv=document.getElementById('designPreview');
   pv.style.background=bar;
   pv.querySelector('.preview-dot').style.background=win;
-  pv.querySelector('span[style*="font-weight:700"]').style.color=win;
-  pv.querySelector('span[style*="color:#666"]').style.color=text;
+  pv.querySelector('span[style*=\"font-weight:700\"]').style.color=win;
+  pv.querySelector('span[style*=\"color:#666\"]').style.color=text;
 }
 
 async function saveDesign(){
@@ -364,4 +439,3 @@ async function loadDesign(){
 </script>
 </body>
 </html>
-
