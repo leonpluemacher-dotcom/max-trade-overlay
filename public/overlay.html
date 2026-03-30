@@ -113,12 +113,26 @@ function applySettings(s){
   bar2.style.transformOrigin='top left';
 }
 
+// Auto-retry fetch for when server wakes up from sleep
+async function retryFetch(url,retries=3){
+  for(let i=0;i<retries;i++){
+    try{
+      const r=await fetch(url);
+      if(r.ok)return r;
+    }catch(e){
+      if(i===retries-1)return null;
+    }
+    await new Promise(r=>setTimeout(r,i===0?2000:5000));
+  }
+  return null;
+}
+
 async function loadSettings(){
-  try{const r=await fetch('/api/settings');applySettings(await r.json())}catch(e){}
+  try{const r=await retryFetch('/api/settings');if(r)applySettings(await r.json())}catch(e){}
 }
 
 async function poll(){
-  try{const r=await fetch('/api/stats');render(await r.json())}catch(e){}
+  try{const r=await retryFetch('/api/stats');if(r)render(await r.json())}catch(e){}
 }
 
 loadSettings();
